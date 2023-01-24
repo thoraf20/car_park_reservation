@@ -32,7 +32,7 @@ app.use(express.urlencoded({ extended: true }))
 app.use(cookieParser())
 app.use(requestLogger)
 
-app.use(unless(['/v1/register', '/v1/login'], checkJwt))
+// app.use(unless(['/v1/register', '/v1/login'], checkJwt))
 app.use((req: Request, res: Response, next: NextFunction) => {
   const authorization = req.header('Authorization')
   const accessToken = authorization?.split(' ')[1] as string
