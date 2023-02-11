@@ -4,7 +4,7 @@ import httpStatus from 'http-status-codes'
 import { Garage } from '../entity/garage'
 import { GarageService } from '../services/garage/garage.service'
 
-export const createGarageHandler: RequestHandler = async (req, res) => {
+export const addGarageHandler: RequestHandler = async (req, res) => {
   const requestSchema = Joi.object({
     postalCode: Joi.string().required(),
     rateCompact: Joi.number().required(),
@@ -19,15 +19,15 @@ export const createGarageHandler: RequestHandler = async (req, res) => {
   }
 
   try {
-    const garageExist = await Garage.findOne({
-      where: { ...(req.query.postalCode ? { postalCode: req.query.postalCode as string } : {})}
-    })
+    // const garageExist = await Garage.findOne({
+    //   where: { ...(req.query.postalCode ? { postalCode: req.query.postalCode as string } : {})}
+    // })
 
-    if (garageExist) {
-      return res.status(httpStatus.CONFLICT).json({
-        meesage: `Garage already added for postal code ${value.postalCode}`
-      })
-    }
+    // if (garageExist) {
+    //   return res.status(httpStatus.CONFLICT).json({
+    //     meesage: `Garage already added for postal code ${value.postalCode}`
+    //   })
+    // }
 
     const newGarage = await GarageService.addGarage(value)
 
@@ -59,23 +59,26 @@ export const getGarageHandler: RequestHandler = async (req, res) => {
   }
 
   try {
-    const garageExist = await Garage.findOne({
-      where: { postalCode: value.postalCode }
+    const garageExist = await Garage.find({
+      where: { ...(req.query.postalCode ? { postalCode: req.query.postalCode as string } : {})}
     })
 
-    if (!garageExist && req.query.postalCode) {
+    if (!garageExist.length && req.query.postalCode) {
       return res.status(httpStatus.NOT_FOUND).json({
-        meesage: `No garage exist for postal code ${req.query.postalCode}`
+        status: 'failed',
+        meesage: `No garage exist for postal code ${req.query.postalCode}`,
+        data: []
       })
     }
 
-    if(!garageExist){
+    if(!garageExist.length){
       return res.status(httpStatus.NOT_FOUND).json({
         meesage: `No garage added yet`
       })
     }
 
     return res.status(httpStatus.OK).json({
+      status: 'success',
       message: 'Garage fetch successfully',
       data: garageExist
     })
